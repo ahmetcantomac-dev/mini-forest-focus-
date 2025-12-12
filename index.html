@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Orman v6</title>
+    <style>
+        /* --- GENEL TASARIM --- */
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(to bottom, #e8f5e9, #c8e6c9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            color: #37474f;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.05);
+            width: 340px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden; 
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { color: #2e7d32; margin-top: 0; margin-bottom: 5px; font-weight: 800; letter-spacing: -0.5px;}
+        .subtitle { color: #546e7a; font-size: 0.95rem; margin-bottom: 25px; }
+        
+        /* --- İSTATİSTİK PANELİ --- */
+        .stats-board {
+            display: flex;
+            justify-content: space-between;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+            border: 1px solid #e0e0e0;
+        }
+        .stat-item { text-align: center; flex: 1;}
+        .stat-item strong { display: block; font-size: 1.3rem; font-weight: 800;}
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;}
+        .green-text strong { color: #2e7d32; } .green-text .stat-label { color: #66bb6a; }
+        .red-text strong { color: #c62828; } .red-text .stat-label { color: #ef5350; }
+        .divider { width: 1px; background: #e0e0e0; margin: 0 10px; }
+
+        /* --- ANA GÖRSEL ALANI --- */
+        .tree-wrapper {
+            position: relative;
+            height: 180px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 15px;
+            background: radial-gradient(ellipse at bottom, #a5d6a7 0%, transparent 60%);
+            background-size: 80% 20px;
+            background-repeat: no-repeat;
+            background-position: bottom center;
+        }
+        
+        .tree { 
+            font-size: 40px; 
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative; 
+            z-index: 2;
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.2));
+            transform-origin: bottom center;
+        }
+        
+        .stage-seed { font-size: 40px; opacity: 1; filter: grayscale(0.3); }
+        .stage-sapling { 
+            font-size: 80px; 
+            opacity: 0.7; 
+            filter: saturate(0.7) brightness(1.1); 
+        }
+        .stage-final { 
+            font-size: 140px; 
+            opacity: 1; 
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); 
+            transform: scale(1.05); 
+        }
+
+        .glow-bg {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 1;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s;
+            opacity: 0;
+            mix-blend-mode: screen; 
+        }
+        .glow-active { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+
+        .tree-info { height: 45px; margin-bottom: 5px; }
+        .tree-name { font-size: 1.1rem; font-weight: 800; color: #37474f; margin-bottom: 4px;}
+        .rarity-badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; display: none; color: white; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+
+        .timer { font-size: 4rem; font-weight: 900; color: #263238; margin: 0.5rem 0; font-variant-numeric: tabular-nums; letter-spacing: -2px;}
+        
+        .input-group { margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; background: #f5f5f5; padding: 8px; border-radius: 12px;}
+        .time-input { padding: 10px; border-radius: 8px; border: 2px solid transparent; width: 55px; text-align: center; font-size: 1.1rem; font-weight: bold; background: white; color: #37474f; transition: all 0.3s;}
+        .time-input:focus { border-color: #4caf50; outline: none; }
+        .input-label { font-size: 0.9rem; color: #78909c; font-weight: 600;}
+
+        button { border: none; padding: 15px 24px; border-radius: 16px; font-size: 1rem; cursor: pointer; transition: all 0.2s; width: 100%; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        button:active { transform: translateY(0); }
+        .start-btn { background: linear-gradient(to right, #4caf50, #43a047); color: white; }
+        .give-up-btn { background: linear-gradient(to right, #ef5350, #e53935); color: white; display: none; }
+        
+        .status { margin-top: 18px; color: #78909c; font-size: 0.95rem; min-height: 1.2em; font-weight: 500;}
+
+        .forest-history {
+            width: 340px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 24px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .forest-history h3 { margin: 0 0 15px 0; color: #2e7d32; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;}
+        .history-icons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .history-item {
+            font-size: 1.6rem; padding: 8px; border-radius: 16px; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+            border: 3px solid transparent; box-shadow: 0 4px 8px rgba(0,0,0,0.05); transition: transform 0.2s;
+        }
+        .history-item:hover { transform: scale(1.1); }
+
+        .common-bg { background: linear-gradient(135deg, #a5d6a7, #66bb6a); } .border-common { border-color: #a5d6a7; }
+        .rare-bg { background: linear-gradient(135deg, #90caf9, #42a5f5); } .border-rare { border-color: #90caf9; }
+        .epic-bg { background: linear-gradient(135deg, #ce93d8, #ab47bc); } .border-epic { border-color: #ce93d8; }
+        .legendary-bg { background: linear-gradient(135deg, #ffd54f, #ffb300); animation: legendaryPulse 2s infinite; } .border-legendary { border-color: #ffd54f; box-shadow: 0 0 10px #ffd54f; }
+
+        @keyframes legendaryPulse {
+            0% { box-shadow: 0 0 10px #ffd54f; filter: brightness(1); }
+            50% { box-shadow: 0 0 30px #ffd54f, 0 0 50px #ff6f00; filter: brightness(1.2); }
+            100% { box-shadow: 0 0 10px #ffd54f; filter: brightness(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Mini Orman</h1>
+        <div class="subtitle">Odaklan ve Kendi Ormanını Yarat</div>
+        
+        <div class="stats-board">
+            <div class="stat-item green-text">
+                <strong id="successCount">0</strong> <span class="stat-label">Canlı</span>
+            </div>
+            <div class="divider"></div>
+            <div class="stat-item red-text">
+                <strong id="failCount">0</strong> <span class="stat-label">Kuruyan</span>
+            </div>
+        </div>
+
+        <div class="tree-wrapper">
+            <div id="glowBg" class="glow-bg"></div>
+            <div id="tree" class="tree stage-seed">🌱</div>
+        </div>
+        
+        <div class="tree-info">
+            <div id="treeName" class="tree-name"></div>
+            <span id="rarityBadge" class="rarity-badge">Yaygın</span>
+        </div>
+        
+        <div class="timer" id="timer">00:00</div>
+        
+        <div class="input-group" id="inputGroup">
+            <input type="number" id="minInput" class="time-input" value="25" min="0" max="120" placeholder="00">
+            <span class="input-label">DK</span>
+            <input type="number" id="secInput" class="time-input" value="00" min="0" max="59" placeholder="00">
+            <span class="input-label">SN</span>
+        </div>
+
+        <button id="startBtn" class="start-btn">Tohumu Ek ve Başla</button>
+        <button id="giveUpBtn" class="give-up-btn">Pes Et (Ağacı Kurut)</button>
+        
+        <p class="status" id="status">Süreyi ayarla, bakalım toprakta ne gizli?</p>
+    </div>
+
+    <div class="forest-history">
+        <h3>🌲 Orman Koleksiyonum 🌲</h3>
+        <div id="historyIcons" class="history-icons">
+            <span style="font-size:0.9rem; color:#90a4ae; font-weight: 500;">Henüz ağaç dikilmedi...</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const treeDatabase = [
+                { name: "Ulu Meşe", icon: "🌳", rarity: "Yaygın", colorClass: "common", weight: 50 },
+                { name: "Kara Çam", icon: "🌲", rarity: "Yaygın", colorClass: "common", weight: 50 },
+                { name: "Gür Kavak", icon: "🍃", rarity: "Yaygın", colorClass: "common", weight: 40 },
+                { name: "Sakura (Kiraz)", icon: "🌸", rarity: "Nadir", colorClass: "rare", weight: 25 },
+                { name: "Palmiye", icon: "🌴", rarity: "Nadir", colorClass: "rare", weight: 25 },
+                { name: "Çöl Kaktüsü", icon: "🌵", rarity: "Nadir", colorClass: "rare", weight: 20 },
+                { name: "Bambu Ormanı", icon: "🎋", rarity: "Nadir", colorClass: "rare", weight: 20 },
+                { name: "Kızıl Akçaağaç", icon: "🍁", rarity: "Destansı", colorClass: "epic", weight: 12 },
+                { name: "Muz Ağacı", icon: "🍌", rarity: "Destansı", colorClass: "epic", weight: 10 },
+                { name: "Büyülü Gül", icon: "🌹", rarity: "Destansı", colorClass: "epic", weight: 8 },
+                { name: "Kristal Hayat Ağacı", icon: "💎", rarity: "Efsanevi", colorClass: "legendary", weight: 3 },
+                { name: "Antik Ejder Ağacı", icon: "🐲", rarity: "Efsanevi", colorClass: "legendary", weight: 2 },
+                { name: "Kozmik Ağaç", icon: "🪐", rarity: "Efsanevi", colorClass: "legendary", weight: 1 }
+            ];
+
+            let timeLeft, totalTime, timerId = null, currentTree = null;
+            let stats = JSON.parse(localStorage.getItem('forestStatsV6')) || { success: 0, fail: 0, history: [] };
+
+            const treeEl = document.getElementById('tree');
+            const glowEl = document.getElementById('glowBg');
+            const treeNameEl = document.getElementById('treeName');
+            const rarityBadgeEl = document.getElementById('rarityBadge');
+            const timerEl = document.getElementById('timer');
+            const startBtn = document.getElementById('startBtn');
+            const giveUpBtn = document.getElementById('giveUpBtn');
+            const statusEl = document.getElementById('status');
+            const inputGroup = document.getElementById('inputGroup');
+            const sCountEl = document.getElementById('successCount');
+            const fCountEl = document.getElementById('failCount');
+            const historyIconsEl = document.getElementById('historyIcons');
+            const minInput = document.getElementById('minInput');
+            const secInput = document.getElementById('secInput');
+
+            updateStatsUI();
+            startBtn.addEventListener('click', startFocus);
+            giveUpBtn.addEventListener('click', giveUp);
+
+            function pickRandomTree() {
+                let totalWeight = treeDatabase.reduce((sum, tree) => sum + tree.weight, 0);
+                let random = Math.random() * totalWeight;
+                for (let tree of treeDatabase) {
+                    if (random < tree.weight) return tree;
+                    random -= tree.weight;
+                }
+                return treeDatabase[0];
+            }
+
+            function updateTreeGrowth(percent) {
+                if (percent >= 20 && currentTree) {
+                     treeEl.innerText = currentTree.icon; 
+                     treeEl.className = "tree stage-sapling"; 
+                } else if (percent < 20) {
+                    treeEl.innerText = "🌱";
+                    treeEl.className = "tree stage-seed";
+                }
+            }
+
+            function startFocus() {
+                let mins = parseInt(minInput.value) || 0;
+                let secs = parseInt(secInput.value) || 0;
+                totalTime = (mins * 60) + secs;
+
+                if (totalTime <= 0) { alert("Lütfen geçerli bir süre girin!"); return; }
+
+                currentTree = pickRandomTree();
+
+                timeLeft = totalTime;
+                inputGroup.style.display = 'none';
+                startBtn.style.display = 'none';
+                giveUpBtn.style.display = 'inline-block';
+                statusEl.innerText = "Odaklan... Toprakta bir hareketlilik var.";
+                treeNameEl.innerText = "Filizleniyor...";
+                rarityBadgeEl.style.display = 'none';
+                
+                treeEl.innerText = "🌱";
+                treeEl.className = "tree stage-seed";
+                
+                glowEl.className = "glow-bg"; 
+
+                timerEl.innerText = formatTime(timeLeft);
+
+                if(timerId) clearInterval(timerId);
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    timerEl.innerText = formatTime(timeLeft);
+                    
+                    let progress = ((totalTime - timeLeft) / totalTime) * 100;
+                    if (progress < 99.5) updateTreeGrowth(progress);
+
+                    if (timeLeft <= 0) finishFocus();
+                }, 1000);
+            }
+
+            function finishFocus() {
+                clearInterval(timerId);
+                treeEl.innerText = currentTree.icon;
+                treeEl.className = "tree stage-final";
+                
+                treeNameEl.innerText = currentTree.name;
+                rarityBadgeEl.innerText = currentTree.rarity;
+                rarityBadgeEl.style.display = 'inline-block';
+                rarityBadgeEl.className = `rarityBadge ${currentTree.colorClass}-bg`;
+
+                glowEl.className = `glow-bg glow-active ${currentTree.colorClass}-bg`;
+
+                statusEl.innerHTML = `Harika! <span style="font-weight:bold;">${currentTree.rarity}</span> bir tür keşfettin!`;
+
+                stats.success++;
+                stats.history.push({ icon: currentTree.icon, rarity: currentTree.colorClass });
+                saveStats();
+                
+                resetUI();
+            }
+
+            function giveUp() {
+                if(!confirm("Emin misin? Bu nadide parça kuruyup gidecek!")) return;
+                
+                clearInterval(timerId);
+                treeEl.innerText = "🥀"; 
+                treeEl.className = "tree";
+                treeEl.style.fontSize = "80px";
+                treeEl.style.filter = "grayscale(1) contrast(1.5)";
+                treeEl.style.opacity = "0.8";
+
+                treeNameEl.innerText = "Kurumuş Umutlar";
+                statusEl.innerText = "Odaklanma bozuldu, bitki kurudu.";
+                statusEl.style.color = "#c62828";
+                
+                glowEl.className = "glow-bg"; 
+
+                stats.fail++;
+                saveStats();
+                resetUI();
+            }
+
+            function formatTime(seconds) {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+
+            function resetUI() {
+                startBtn.style.display = 'inline-block';
+                startBtn.innerText = "Yeni Bir Tohum Ek";
+                giveUpBtn.style.display = 'none';
+                inputGroup.style.display = 'flex'; 
+                setTimeout(() => { treeEl.style = ""; }, 1000);
+            }
+
+            function saveStats() {
+                localStorage.setItem('forestStatsV6', JSON.stringify(stats));
+                updateStatsUI();
+            }
+
+            function updateStatsUI() {
+                sCountEl.innerText = stats.success;
+                fCountEl.innerText = stats.fail;
+                
+                if (stats.history.length > 0) {
+                    const recentHistory = stats.history.slice(-24).reverse();
+                    historyIconsEl.innerHTML = recentHistory.map(item => 
+                        `<div class="history-item border-${item.rarity}">${item.icon}</div>`
+                    ).join('');
+                } else {
+                    historyIconsEl.innerHTML = '<span style="font-size:0.9rem; color:#90a4ae; font-weight: 500;">Henüz ağaç dikilmedi...</span>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
