@@ -1,0 +1,10 @@
+<Project>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)' == 'Release|net8.0-android'">
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<!-- Replace this with the absolute path to your actual keystore file -->
+		<AndroidSigningKeyStore>PATH_TO_YOUR_KEYSTORE/miniorman.keystore</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>miniorman</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass>YOUR_PASSWORD</AndroidSigningKeyPass>
+		<AndroidSigningStorePass>YOUR_PASSWORD</AndroidSigningStorePass>
+	</PropertyGroup>
+</Project>

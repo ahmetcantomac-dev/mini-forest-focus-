@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ===== PREMIUM WARM SAGE PALETTE ===== -->
+
+    <!-- Primary Sage Green -->
+    <Color x:Key="Primary">#7CB68E</Color>
+    <Color x:Key="PrimaryDark">#5A9A6E</Color>
+    <Color x:Key="PrimaryLight">#A8D5B8</Color>
+    <Color x:Key="Secondary">#6BA37B</Color>
+
+    <!-- Background -->
+    <Color x:Key="BackgroundPrimary">#FAF8F5</Color>
+    <Color x:Key="BackgroundSecondary">#F3F0EB</Color>
+    <Color x:Key="BackgroundCard">#FFFFFF</Color>
+    <Color x:Key="BackgroundStart">#FAF8F5</Color>
+    <Color x:Key="BackgroundEnd">#F0EDE8</Color>
+
+    <!-- Text -->
+    <Color x:Key="TextPrimary">#2D3436</Color>
+    <Color x:Key="TextSecondary">#808B8C</Color>
+    <Color x:Key="TextMuted">#B0BAB9</Color>
+    <Color x:Key="TextTimer">#2D3436</Color>
+    <Color x:Key="TextPlaceholder">#C8CFCE</Color>
+
+    <!-- Stats -->
+    <Color x:Key="SuccessGreen">#7CB68E</Color>
+    <Color x:Key="SuccessGreenLight">#A8D5B8</Color>
+    <Color x:Key="FailRed">#E88B8B</Color>
+    <Color x:Key="FailRedLight">#F0B4B4</Color>
+
+    <!-- UI Elements -->
+    <Color x:Key="CardBackground">#FFFFFF</Color>
+    <Color x:Key="DividerColor">#ECEAE5</Color>
+    <Color x:Key="InputBackground">#F5F3EE</Color>
+    <Color x:Key="InputBorder">#E0DDD6</Color>
+    <Color x:Key="ProgressTrack">#E8E5DF</Color>
+    <Color x:Key="ProgressFill">#7CB68E</Color>
+
+    <!-- Buttons -->
+    <Color x:Key="StartBtnStart">#7CB68E</Color>
+    <Color x:Key="StartBtnEnd">#5A9A6E</Color>
+    <Color x:Key="GiveUpBtnStart">#E88B8B</Color>
+    <Color x:Key="GiveUpBtnEnd">#D06A6A</Color>
+
+    <!-- Rarity Colors -->
+    <Color x:Key="RarityCommon">#7CB68E</Color>
+    <Color x:Key="RarityRare">#9BB5D6</Color>
+    <Color x:Key="RarityEpic">#C4A0D4</Color>
+    <Color x:Key="RarityLegendary">#E8C170</Color>
+
+    <!-- System Colors (required by Styles.xaml) -->
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Magenta">#D600AA</Color>
+    <Color x:Key="MidnightBlue">#190649</Color>
+    <Color x:Key="OffBlack">#1f1f1f</Color>
+    <Color x:Key="PrimaryDarkText">#2D3436</Color>
+    <Color x:Key="SecondaryDarkText">#808B8C</Color>
+
+    <!-- Gray Scale -->
+    <Color x:Key="Gray100">#E8E5DF</Color>
+    <Color x:Key="Gray200">#D5D1CA</Color>
+    <Color x:Key="Gray300">#C2BEB5</Color>
+    <Color x:Key="Gray400">#AFA9A0</Color>
+    <Color x:Key="Gray500">#9C958B</Color>
+    <Color x:Key="Gray600">#7A7268</Color>
+    <Color x:Key="Gray900">#3D3830</Color>
+    <Color x:Key="Gray950">#2D2820</Color>
+
+</ResourceDictionary>

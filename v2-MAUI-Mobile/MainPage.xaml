@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:MiniOrman.Converters"
+             xmlns:vm="clr-namespace:MiniOrman.ViewModels"
+             xmlns:models="clr-namespace:MiniOrman.Models"
+             x:Class="MiniOrman.MainPage"
+             x:DataType="vm:MainViewModel"
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentPage.Resources>
+        <converters:RarityToColorConverter x:Key="RarityToColor"/>
+        <converters:RarityToBorderColorConverter x:Key="RarityToBorder"/>
+        <converters:InverseBoolConverter x:Key="InverseBool"/>
+    </ContentPage.Resources>
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource BackgroundStart}" Offset="0.0"/>
+            <GradientStop Color="{StaticResource BackgroundEnd}" Offset="1.0"/>
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,52,24,24" Spacing="0">
+
+            <!-- ===== HEADER ===== -->
+            <Label Text="Mini Orman"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryDark}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,4"/>
+
+            <Label Text="odaklan · büyüt · keşfet"
+                   FontSize="12"
+                   TextColor="{StaticResource TextMuted}"
+                   HorizontalOptions="Center"
+                   CharacterSpacing="2"
+                   Margin="0,0,0,28"/>
+
+            <!-- ===== HERO: Circular Ring + Tree ===== -->
+            <Grid WidthRequest="260"
+                  HeightRequest="260"
+                  HorizontalOptions="Center"
+                  Margin="0,0,0,20">
+
+                <!-- Circular Progress Ring -->
+                <GraphicsView x:Name="ProgressRing"
+                              WidthRequest="260"
+                              HeightRequest="260"
+                              HorizontalOptions="Center"
+                              VerticalOptions="Center"/>
+
+                <!-- Glow Effect -->
+                <Ellipse x:Name="GlowEllipse"
+                         WidthRequest="180"
+                         HeightRequest="180"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center"
+                         Opacity="0"
+                         Fill="{Binding GlowColorClass, Converter={StaticResource RarityToColor}}"/>
+
+                <!-- Tree Image -->
+                <Image x:Name="TreeImage"
+                       Source="{Binding TreeIconSource}"
+                       WidthRequest="110"
+                       HeightRequest="110"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Aspect="AspectFit"
+                       Opacity="{Binding TreeOpacity}"
+                       Margin="0,0,0,30"/>
+
+                <!-- Tree Name + Rarity Badge -->
+                <VerticalStackLayout VerticalOptions="End"
+                                     HorizontalOptions="Center"
+                                     Spacing="6"
+                                     Margin="0,0,0,28">
+                    <Label Text="{Binding TreeName}"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center"/>
+
+                    <Border StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10"
+                            BackgroundColor="{Binding RarityColorClass, Converter={StaticResource RarityToColor}}"
+                            Padding="12,3"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsRarityVisible}">
+                        <Label Text="{Binding RarityText}"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               CharacterSpacing="1"
+                               TextTransform="Uppercase"/>
+                    </Border>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- ===== TIMER ===== -->
+            <Label x:Name="TimerLabel"
+                   Text="{Binding TimerText}"
+                   FontSize="60"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextPrimary}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   CharacterSpacing="1"
+                   Margin="0,0,0,8"/>
+
+            <!-- ===== PROGRESS BAR ===== -->
+            <Border StrokeThickness="0"
+                    StrokeShape="RoundRectangle 3"
+                    BackgroundColor="{StaticResource ProgressTrack}"
+                    HeightRequest="5"
+                    Margin="50,0,50,24">
+                <ProgressBar x:Name="TimerProgressBar"
+                             Progress="{Binding TimerProgress}"
+                             ProgressColor="{StaticResource ProgressFill}"
+                             HeightRequest="5"/>
+            </Border>
+
+            <!-- ===== DURUM MESAJI ===== -->
+            <Label Text="{Binding StatusText}"
+                   TextColor="{Binding StatusColor}"
+                   FontSize="13"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,20"/>
+
+            <!-- ===== SÜRE GİRİŞİ ===== -->
+            <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="12"
+                                   IsVisible="{Binding IsIdle}"
+                                   Margin="0,0,0,16">
+
+                <!-- Dakika -->
+                <Border StrokeThickness="1.5"
+                        Stroke="{StaticResource InputBorder}"
+                        StrokeShape="RoundRectangle 14"
+                        BackgroundColor="{StaticResource InputBackground}"
+                        Padding="0"
+                        WidthRequest="80"
+                        HeightRequest="52">
+                    <Entry Text="{Binding MinuteInput}"
+                           Keyboard="Numeric"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"
+                           Placeholder="25"
+                           PlaceholderColor="{StaticResource TextPlaceholder}"
+                           MaxLength="3"
+                           BackgroundColor="Transparent"/>
+                </Border>
+
+                <Label Text="dk"
+                       FontSize="14"
+                       TextColor="{StaticResource TextMuted}"
+                       VerticalOptions="Center"/>
+
+                <!-- Saniye -->
+                <Border StrokeThickness="1.5"
+                        Stroke="{StaticResource InputBorder}"
+                        StrokeShape="RoundRectangle 14"
+                        BackgroundColor="{StaticResource InputBackground}"
+                        Padding="0"
+                        WidthRequest="80"
+                        HeightRequest="52">
+                    <Entry Text="{Binding SecondInput}"
+                           Keyboard="Numeric"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"
+                           Placeholder="00"
+                           PlaceholderColor="{StaticResource TextPlaceholder}"
+                           MaxLength="2"
+                           BackgroundColor="Transparent"/>
+                </Border>
+
+                <Label Text="sn"
+                       FontSize="14"
+                       TextColor="{StaticResource TextMuted}"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <!-- ===== BAŞLA BUTONU ===== -->
+            <Button x:Name="StartButton"
+                    Text="{Binding StartButtonText}"
+                    Command="{Binding StartFocusCommand}"
+                    IsVisible="{Binding IsIdle}"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    CornerRadius="20"
+                    HeightRequest="56"
+                    Margin="20,0,20,8">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="{StaticResource StartBtnStart}" Offset="0.0"/>
+                        <GradientStop Color="{StaticResource StartBtnEnd}" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+                <Button.Shadow>
+                    <Shadow Brush="{StaticResource Primary}" Offset="0,6" Radius="16" Opacity="0.25"/>
+                </Button.Shadow>
+            </Button>
+
+            <!-- ===== PES ET BUTONU ===== -->
+            <Button x:Name="GiveUpButton"
+                    Text="Pes Et"
+                    Command="{Binding GiveUpCommand}"
+                    IsVisible="{Binding IsRunning}"
+                    FontSize="15"
+                    FontAttributes="Bold"
+                    TextColor="{StaticResource FailRed}"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource FailRed}"
+                    BorderWidth="1.5"
+                    CornerRadius="20"
+                    HeightRequest="52"
+                    Margin="40,0,40,8"/>
+
+            <!-- ===== İSTATİSTİK ===== -->
+            <Border StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16"
+                    BackgroundColor="{StaticResource BackgroundCard}"
+                    Padding="16,12"
+                    Margin="20,16,20,0">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.04"/>
+                </Border.Shadow>
+                <Grid ColumnDefinitions="*,Auto,*">
+
+                    <!-- Canlı -->
+                    <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="6">
+                        <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4"
+                                 Color="{StaticResource SuccessGreen}" VerticalOptions="Center"/>
+                        <Label FontSize="15" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}" VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding SuccessCount}" FontAttributes="Bold"/>
+                                    <Span Text=" Canlı" TextColor="{StaticResource TextSecondary}" FontSize="12"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </HorizontalStackLayout>
+
+                    <!-- Ayırıcı -->
+                    <BoxView Grid.Column="1" WidthRequest="1" HeightRequest="20"
+                             Color="{StaticResource DividerColor}" VerticalOptions="Center"/>
+
+                    <!-- Kuruyan -->
+                    <HorizontalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="6">
+                        <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4"
+                                 Color="{StaticResource FailRed}" VerticalOptions="Center"/>
+                        <Label FontSize="15" FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}" VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding FailCount}" FontAttributes="Bold"/>
+                                    <Span Text=" Kuruyan" TextColor="{StaticResource TextSecondary}" FontSize="12"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </HorizontalStackLayout>
+
+                </Grid>
+            </Border>
+
+            <!-- ===== KOLEKSİYON ===== -->
+            <Border StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16"
+                    BackgroundColor="{StaticResource BackgroundCard}"
+                    Padding="16"
+                    Margin="20,12,20,0">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.04"/>
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Koleksiyonum"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"/>
+
+                    <Label Text="Henüz ağaç yok — ilk tohumunu ek!"
+                           FontSize="12"
+                           TextColor="{StaticResource TextPlaceholder}"
+                           IsVisible="{Binding HasHistory, Converter={StaticResource InverseBool}}"/>
+
+                    <FlexLayout BindableLayout.ItemsSource="{Binding HistoryItems}"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                AlignItems="Center"
+                                IsVisible="{Binding HasHistory}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:HistoryItem">
+                                <Border StrokeThickness="2"
+                                        Stroke="{Binding Rarity, Converter={StaticResource RarityToBorder}}"
+                                        StrokeShape="RoundRectangle 14"
+                                        BackgroundColor="{StaticResource BackgroundSecondary}"
+                                        WidthRequest="56"
+                                        HeightRequest="56"
+                                        Margin="4"
+                                        Padding="6">
+                                    <Image Source="{Binding IconSource, StringFormat='{0}.png'}"
+                                           WidthRequest="38"
+                                           HeightRequest="38"
+                                           Aspect="AspectFit"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Alt boşluk -->
+            <BoxView HeightRequest="32" Color="Transparent"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
